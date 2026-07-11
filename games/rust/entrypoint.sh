@@ -5,9 +5,15 @@ cd /home/container
 export INTERNAL_IP=`ip route get 1 | awk '{print $(NF-2);exit}'`
 
 if [ -z ${AUTO_UPDATE} ] || [ "${AUTO_UPDATE}" == "1" ]; then
-    [[ -n "${SRCDS_BETAID:-}" ]] && args+=(-branch "${SRCDS_BETAID}")
-    [[ -n "${SRCDS_BETAPW:-}" ]] && args+=(-branchpassword "${SRCDS_BETAPW}")
-    ./DepotDownloader/DepotDownloader -app 258550 "${args[@]}" -dir /home/container -os linux -validate
+	if [ -f "./steamcmd/steamcmd.sh" ]; then
+		echo -e "Using SteamCMD; consider upgrading the egg?"
+		./steamcmd/steamcmd.sh +force_install_dir /home/container +login anonymous +app_update 258550 +quit
+	else
+		echo -e "Using DepotDownloader"
+    	[[ -n "${SRCDS_BETAID:-}" ]] && args+=(-branch "${SRCDS_BETAID}")
+    	[[ -n "${SRCDS_BETAPW:-}" ]] && args+=(-branchpassword "${SRCDS_BETAPW}")
+    	./DepotDownloader/DepotDownloader -app 258550 "${args[@]}" -dir /home/container -os linux -validate
+	fi
 else
     echo -e "Not updating game server as auto update was set to 0. Starting Server"
 fi
@@ -29,7 +35,7 @@ if [[ "${FRAMEWORK}" == "oxide" ]]; then
     echo "Updating uMod..."
     curl -fsSL "https://github.com/OxideMod/Oxide.Rust/releases/latest/download/Oxide.Rust-linux.zip" -o umod.zip
     unzip -oq umod.zip
-    rm -f umod.zip
+    rm umod.zip
     echo "Done updating uMod!"
 fi
 
