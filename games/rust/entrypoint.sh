@@ -5,14 +5,14 @@ cd /home/container
 export INTERNAL_IP=`ip route get 1 | awk '{print $(NF-2);exit}'`
 
 if [ -z ${AUTO_UPDATE} ] || [ "${AUTO_UPDATE}" == "1" ]; then
-	if [ -f "./steamcmd/steamcmd.sh" ]; then
-		echo -e "Using SteamCMD; consider upgrading the egg?"
-		./steamcmd/steamcmd.sh +force_install_dir /home/container +login anonymous +app_update 258550 +quit
-	else
+	if [ -f "./DepotDownloader/DepotDownloader" ]; then
 		echo -e "Using DepotDownloader"
     	[[ -n "${SRCDS_BETAID:-}" ]] && args+=(-branch "${SRCDS_BETAID}")
     	[[ -n "${SRCDS_BETAPW:-}" ]] && args+=(-branchpassword "${SRCDS_BETAPW}")
     	./DepotDownloader/DepotDownloader -app 258550 "${args[@]}" -dir /home/container -os linux -validate
+	else
+		echo -e "Using SteamCMD; consider upgrading the egg?"
+		./steamcmd/steamcmd.sh +force_install_dir /home/container +login anonymous +app_update 258550 +quit
 	fi
 else
     echo -e "Not updating game server as auto update was set to 0. Starting Server"
